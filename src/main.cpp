@@ -1,26 +1,40 @@
 #include <Arduino.h>
 #include <Servo.h>
+#include <Ticker.h>
 
-int IR_SENSOR = 0;
 int SERVO_NUM = 3;
-int intSensorResult = 0;
 
-Servo myservo;            
+Servo jr_servo;
 
-void setup() {
-  myservo.attach(SERVO_NUM);
-  pinMode(0, OUTPUT);
-  Serial.begin(9600);
+//Settings
+//int period = 10; //sec(2min30sec)
+int period = 150; //sec(2min30sec)
+int init_angle = 92;//degree
+int push_angle = 83;//degree
+
+void push_button();
+
+Ticker timer1(push_button, 1000 * period);
+
+void setup()
+{
+  jr_servo.attach(SERVO_NUM);
+  Serial.begin(115200);
+  jr_servo.write(init_angle);
+  timer1.start();
 }
 
-void loop() {
+void loop()
+{
+  timer1.update();
+}
 
-  intSensorResult = analogRead(IR_SENSOR);
+void push_button()
+{
+  Serial.print("Push Button! Count = ");
+  Serial.println(timer1.counter());
 
-  if(intSensorResult > 380){
-    myservo.write(120);
-    delay(800);                  
-  }else{
-    myservo.write(0);
-  }  
+  jr_servo.write(push_angle);
+  delay(100);
+  jr_servo.write(init_angle);
 }
